@@ -1,0 +1,8 @@
+# Copyright (c) 2026, Smoke Console Contributors and contributors
+# For license information, please see license.txt
+
+from frappe.model.document import Document
+
+
+class SmokeSite(Document):
+	pass

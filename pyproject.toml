@@ -1,0 +1,20 @@
+[project]
+name = "smoke_console"
+authors = [
+    { name = "Smoke Console Contributors", email = "umair_sayyed@yahoo.com" },
+]
+description = "Control plane (UI) for frappe_smoke — schedule and run smoke tests against Frappe sites and track results."
+requires-python = ">=3.10"
+readme = "README.md"
+dynamic = ["version"]
+dependencies = [
+    # The execution engine. Installed editable from ~/frappe_smoke in dev.
+    "frappe_smoke",
+]
+
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.flit.module]
+name = "smoke_console"

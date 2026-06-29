@@ -1,0 +1,177 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "format:RUN-{#####}",
+ "creation": "2026-06-29 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "run_title",
+  "site",
+  "test_cases",
+  "column_break_run",
+  "plan",
+  "trigger",
+  "status",
+  "started_at",
+  "finished_at",
+  "section_summary",
+  "total_steps",
+  "passed",
+  "failed",
+  "skipped",
+  "column_break_summary",
+  "detected_apps",
+  "section_log",
+  "log"
+ ],
+ "fields": [
+  {
+   "fieldname": "run_title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "description": "Optional label for this run."
+  },
+  {
+   "fieldname": "site",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Site",
+   "options": "Smoke Site",
+   "reqd": 1
+  },
+  {
+   "fieldname": "test_cases",
+   "fieldtype": "Table MultiSelect",
+   "label": "Test Cases",
+   "options": "Smoke Plan Case",
+   "description": "Leave empty to run all applicable test cases on the site."
+  },
+  {
+   "fieldname": "column_break_run",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "plan",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "From Plan",
+   "options": "Smoke Test Plan",
+   "read_only": 1
+  },
+  {
+   "default": "Manual",
+   "fieldname": "trigger",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Trigger",
+   "options": "Manual\nScheduled",
+   "read_only": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nQueued\nRunning\nPassed\nPartial\nFailed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "started_at",
+   "fieldtype": "Datetime",
+   "label": "Started At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "finished_at",
+   "fieldtype": "Datetime",
+   "label": "Finished At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_summary",
+   "fieldtype": "Section Break",
+   "label": "Summary"
+  },
+  {
+   "fieldname": "total_steps",
+   "fieldtype": "Int",
+   "label": "Total Steps",
+   "read_only": 1
+  },
+  {
+   "fieldname": "passed",
+   "fieldtype": "Int",
+   "label": "Passed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "failed",
+   "fieldtype": "Int",
+   "label": "Failed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "skipped",
+   "fieldtype": "Int",
+   "label": "Skipped",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_summary",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "detected_apps",
+   "fieldtype": "Small Text",
+   "label": "Detected Apps",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_log",
+   "fieldtype": "Section Break",
+   "label": "Log"
+  },
+  {
+   "fieldname": "log",
+   "fieldtype": "Code",
+   "label": "Run Log",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [
+  {
+   "link_doctype": "Smoke Result",
+   "link_fieldname": "run"
+  }
+ ],
+ "modified": "2026-06-29 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Smoke Console",
+ "name": "Smoke Run",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "run_title"
+}
