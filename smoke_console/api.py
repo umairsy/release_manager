@@ -68,8 +68,59 @@ def sync_catalog() -> int:
         doc.steps_preview = preview
         doc.save(ignore_permissions=True)
         count += 1
+    seed_example_groups()
     frappe.db.commit()
     return count
+
+
+@frappe.whitelist()
+def seed_example_groups() -> int:
+    """Create one curated group per app from existing Test Cases' required_app.
+
+    Idempotent and non-destructive: only creates a group if it doesn't exist, so
+    it never overwrites groups the user has hand-edited. Gives sensible defaults
+    like "ERPNext - Distribution" (all erpnext cases) out of the box.
+    """
+    labels = {
+        "erpnext": "ERPNext - Distribution",
+        "hrms": "Frappe HR",
+        "frappe": "Framework",
+    }
+    by_app: dict[str, list[str]] = {}
+    for case in frappe.get_all(
+        "Smoke Test Case", filters={"enabled": 1}, fields=["name", "required_app"]
+    ):
+        by_app.setdefault(case.required_app or "other", []).append(case.name)
+
+    created = 0
+    for app, cases in by_app.items():
+        group_name = labels.get(app, app.replace("_", " ").title())
+        if frappe.db.exists("Smoke Test Group", group_name):
+            continue
+        group = frappe.new_doc("Smoke Test Group")
+        group.group_name = group_name
+        group.description = f"Auto-seeded: all {app} test cases."
+        for case in cases:
+            group.append("test_cases", {"test_case": case})
+        group.insert(ignore_permissions=True)
+        created += 1
+    return created
+
+
+@frappe.whitelist()
+def run_group(site: str, group: str, trigger: str = "Manual") -> str:
+    """Create + queue a Smoke Run for every Test Case in a group."""
+    group_doc = frappe.get_doc("Smoke Test Group", group)
+    run = frappe.new_doc("Smoke Run")
+    run.run_title = f"{group_doc.group_name} — {site}"
+    run.site = site
+    run.trigger = trigger
+    for row in group_doc.test_cases:
+        run.append("test_cases", {"test_case": row.test_case})
+    run.insert(ignore_permissions=True)
+    run_now(run.name)
+    frappe.db.commit()
+    return run.name
 
 
 @frappe.whitelist()
