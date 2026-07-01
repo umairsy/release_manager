@@ -42,3 +42,27 @@ benches/frappe-bench/env/bin/python -m pip install -e ~/frappe_smoke
 # app into the bench, then on the control site
 bench --site smoke.localhost install-app smoke_console
 ```
+
+## Test Groups
+
+A **Smoke Test Group** bundles test cases so you can run a whole area at once. Running a
+group (Desk "Run Group" button, or `smoke_console.api.run_group(site, group)`) creates one
+Smoke Run for every case in the group. `sync_catalog` auto-seeds per-app groups (e.g.
+"ERPNext - Distribution" = all erpnext cases); you can also curate your own, mixing apps.
+
+## Web UI (`/smoke`)
+
+A Vue single-page app (frappe-ui + Vite, in `frontend/`) served at
+`http://<site>/smoke`, reusing the standard Frappe login. Views: **Runs list** → **New Run**
+(pick a Site + a Group) → **Run detail** (live suites → steps, errors, and a corrective-action
+/ re-run panel that updates while the run is in flight).
+
+Build it (independent of `bench build`/esbuild):
+
+```bash
+cd frontend && yarn && yarn build      # outputs to smoke_console/public/frontend + www/smoke/index.html
+# first time only, ensure the asset symlink exists:
+ln -sfn $PWD/../smoke_console/public <bench>/sites/assets/smoke_console
+```
+
+Dev: `cd frontend && yarn dev` (Vite proxies `/api` to the bench).

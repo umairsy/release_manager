@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="{{ boot.lang or 'en' }}" dir="{{ boot.dir or 'ltr' }}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smoke Console</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+    <script>
+      window.csrf_token = "{{ boot.csrf_token }}";
+      window.site_name = "{{ boot.site_name }}";
+      window.boot = {{ boot | tojson }};
+    </script>
+  </body>
+</html>

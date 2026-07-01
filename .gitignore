@@ -1,0 +1,12 @@
+
+# Frontend build artifacts
+frontend/node_modules/
+frontend/dist/
+smoke_console/public/frontend/
+smoke_console/www/smoke/index.html
+
+# Python + generated
+__pycache__/
+*.pyc
+frontend/auto-imports.d.ts
+frontend/components.d.ts

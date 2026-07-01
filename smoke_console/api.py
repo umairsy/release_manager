@@ -256,6 +256,51 @@ def run_plan(plan: str, trigger: str = "Manual") -> list[str]:
     return runs
 
 
+@frappe.whitelist()
+def create_and_run(site: str, group: str | None = None, test_cases=None, title: str | None = None) -> str:
+    """Create + queue a Smoke Run from a group, an explicit case list, or all applicable.
+
+    Used by the Vue UI's New Run / re-run flows. ``test_cases`` may be a JSON string.
+    """
+    run = frappe.new_doc("Smoke Run")
+    run.site = site
+    run.trigger = "Manual"
+
+    cases: list[str] = []
+    if group:
+        group_doc = frappe.get_doc("Smoke Test Group", group)
+        cases = [row.test_case for row in group_doc.test_cases]
+        run.run_title = title or f"{group_doc.group_name} — {site}"
+    elif test_cases:
+        cases = json.loads(test_cases) if isinstance(test_cases, str) else list(test_cases)
+        run.run_title = title or f"{', '.join(cases)} — {site}"
+    else:
+        run.run_title = title or f"All applicable — {site}"
+
+    for case in cases:
+        run.append("test_cases", {"test_case": case})
+    run.insert(ignore_permissions=True)
+    run_now(run.name)
+    frappe.db.commit()
+    return run.name
+
+
+@frappe.whitelist()
+def rerun(run: str) -> str:
+    """Clone a run's site + test cases into a fresh Smoke Run and queue it."""
+    src = frappe.get_doc("Smoke Run", run)
+    new = frappe.new_doc("Smoke Run")
+    new.site = src.site
+    new.run_title = src.run_title
+    new.trigger = "Manual"
+    for row in src.test_cases:
+        new.append("test_cases", {"test_case": row.test_case})
+    new.insert(ignore_permissions=True)
+    run_now(new.name)
+    frappe.db.commit()
+    return new.name
+
+
 def _run_scheduled(frequency: str) -> None:
     plans = frappe.get_all(
         "Smoke Test Plan", filters={"enabled": 1, "frequency": frequency}, pluck="name"
