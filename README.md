@@ -1,10 +1,26 @@
-# Smoke Console
+# Release Manager (app package: `smoke_console`)
 
 A Frappe app that is the **control plane / UI** for the
 [`frappe_smoke`](../frappe_smoke) execution engine. It lets you register target
 Frappe sites, keep a master catalog of test cases, run smoke tests (manually or
-on a schedule), and review results with corrective-action tracking — all from
-the Frappe Desk.
+on a schedule), and review results with corrective-action tracking — from the
+Frappe Desk or the Vue dashboard at **`/release`**.
+
+> The product is branded **Release Manager**; the Python package, doctypes
+> (`Smoke *`), and repo keep their original `smoke_console` names.
+
+## Running against Frappe Cloud (or any remote site)
+
+The engine is a pure external HTTP client, so no install is needed on the target.
+To test a Frappe Cloud site:
+
+1. On that site, create an **API key + secret** for a user with the needed roles
+   (User → API Access → Generate Keys).
+2. Add a **Smoke Site** with `base_url = https://<site>.frappe.cloud`,
+   `auth_type = token`, and those `api_key`/`api_secret`. Leave Host header blank
+   (real DNS). Click **Test Connection**, then run.
+
+Token auth is verified working end-to-end (engine `use_token`).
 
 It runs on one local **control site** (e.g. `smoke.localhost`) and drives *other*
 sites over HTTP via the engine, so it never has to be installed on the systems
