@@ -17,12 +17,12 @@ def after_install() -> None:
 
     _ensure_number_card(
         "Smoke - Open Failures",
-        "Smoke Result",
-        filters=[["Smoke Result", "status", "=", "Failed"], ["Smoke Result", "action_status", "in", ["Open", "Investigating"]]],
+        "Test Result",
+        filters=[["Test Result", "status", "=", "Failed"], ["Test Result", "action_status", "in", ["Open", "Investigating"]]],
     )
     _ensure_number_card(
         "Smoke - Results Logged",
-        "Smoke Result",
+        "Test Result",
         filters=[],
     )
     _ensure_status_chart()
@@ -60,7 +60,7 @@ def _ensure_status_chart() -> None:
                 "name": name,
                 "chart_name": name,
                 "chart_type": "Group By",
-                "document_type": "Smoke Result",
+                "document_type": "Test Result",
                 "group_by_type": "Count",
                 "group_by_based_on": "status",
                 "type": "Donut",

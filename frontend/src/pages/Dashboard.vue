@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between">
       <h1 class="text-xl font-semibold">Release Manager</h1>
       <div class="flex gap-2">
-        <Button variant="solid" @click="router.push('/new')">New Run</Button>
+        <Button variant="solid" @click="router.push('/new')">New Release Test</Button>
         <Button variant="subtle" :disabled="true" title="Coming soon">Release (coming soon)</Button>
       </div>
     </div>
@@ -16,20 +16,6 @@
       <Stat label="Passed" :value="stats.data?.passed" tone="green" />
       <Stat label="Failed" :value="stats.data?.failed" tone="red" />
       <Stat label="Skipped" :value="stats.data?.skipped" tone="gray" />
-    </div>
-
-    <!-- Running jobs terminal -->
-    <div>
-      <div class="text-xs font-medium text-ink-gray-5 uppercase mb-1">Running jobs</div>
-      <div class="rounded-lg bg-gray-900 text-gray-100 font-mono text-xs p-3 min-h-24 max-h-64 overflow-auto">
-        <template v-if="running.data && running.data.length">
-          <div v-for="r in running.data" :key="r.name" class="mb-2">
-            <div class="text-blue-300">▶ {{ r.run_title || r.name }} — {{ r.status }} ({{ r.site }})</div>
-            <pre class="whitespace-pre-wrap text-gray-300">{{ r.log || "…" }}</pre>
-          </div>
-        </template>
-        <div v-else class="text-gray-500">No running jobs. Start one with “New Run”.</div>
-      </div>
     </div>
 
     <!-- Recent runs -->
@@ -69,26 +55,17 @@ import { statusTheme } from "@/lib/status";
 const router = useRouter();
 
 const stats = createResource({ url: "smoke_console.api.dashboard_stats", auto: true });
-const running = createListResource({
-  doctype: "Smoke Run",
-  fields: ["name", "run_title", "site", "status", "log"],
-  filters: { status: ["in", ["Queued", "Running"]] },
-  orderBy: "modified desc",
-  pageLength: 5,
-  auto: true,
-});
 const runs = createListResource({
-  doctype: "Smoke Run",
+  doctype: "Release Test",
   fields: ["name", "run_title", "site", "status", "passed", "failed", "modified"],
   orderBy: "modified desc",
   pageLength: 15,
   auto: true,
 });
 
-// Poll so counters + the terminal stay live while jobs run.
+// Poll so counters + recent runs stay live while jobs run.
 const timer = setInterval(() => {
   stats.reload();
-  running.reload();
   runs.reload();
 }, 3000);
 onUnmounted(() => clearInterval(timer));

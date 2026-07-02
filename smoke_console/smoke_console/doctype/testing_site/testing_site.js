@@ -1,7 +1,7 @@
 // Copyright (c) 2026, Smoke Console Contributors and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on("Smoke Site", {
+frappe.ui.form.on("Testing Site", {
 	refresh(frm) {
 		if (frm.is_new()) return;
 		frm.add_custom_button(__("Test Connection"), () => {

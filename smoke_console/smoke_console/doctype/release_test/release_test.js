@@ -1,7 +1,7 @@
 // Copyright (c) 2026, Smoke Console Contributors and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on("Smoke Run", {
+frappe.ui.form.on("Release Test", {
 	refresh(frm) {
 		if (frm.is_new()) return;
 

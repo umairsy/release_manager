@@ -22,7 +22,7 @@ website_redirects = [
 add_to_apps_screen = [
     {
         "name": "smoke_console",
-        "title": "Release Manager",
+        "title": "Releases",
         "route": "/release",
     }
 ]

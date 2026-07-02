@@ -4,5 +4,5 @@
 from frappe.model.document import Document
 
 
-class SmokeRun(Document):
+class TestingSite(Document):
 	pass

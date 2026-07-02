@@ -40,7 +40,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Site",
-   "options": "Smoke Site",
+   "options": "Testing Site",
    "reqd": 1
   },
   {
@@ -153,14 +153,14 @@
  "index_web_pages_for_search": 1,
  "links": [
   {
-   "link_doctype": "Smoke Result",
+   "link_doctype": "Test Result",
    "link_fieldname": "run"
   }
  ],
  "modified": "2026-06-29 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Smoke Console",
- "name": "Smoke Run",
+ "name": "Release Test",
  "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [

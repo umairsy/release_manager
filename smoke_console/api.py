@@ -2,7 +2,7 @@
 
 Bridges the Frappe Desk (DocTypes, buttons, scheduler) to the ``frappe_smoke``
 execution engine. The engine does the HTTP work against target sites; this
-module turns its plain-dict results into Smoke Result records.
+module turns its plain-dict results into Test Result records.
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ _STEP_TO_RESULT = {"pass": "Passed", "fail": "Failed", "skip": "Skipped"}
 
 # --------------------------------------------------------------------- helpers
 def _site_config(site_doc) -> dict:
-    """Build the engine's site-config dict from a Smoke Site document."""
+    """Build the engine's site-config dict from a Testing Site document."""
     cfg = {
         "label": site_doc.name,
         "url": site_doc.base_url,
@@ -95,9 +95,9 @@ def seed_example_groups() -> int:
     created = 0
     for app, cases in by_app.items():
         group_name = labels.get(app, app.replace("_", " ").title())
-        if frappe.db.exists("Smoke Test Group", group_name):
+        if frappe.db.exists("Test Case Group", group_name):
             continue
-        group = frappe.new_doc("Smoke Test Group")
+        group = frappe.new_doc("Test Case Group")
         group.group_name = group_name
         group.description = f"Auto-seeded: all {app} test cases."
         for case in cases:
@@ -109,9 +109,9 @@ def seed_example_groups() -> int:
 
 @frappe.whitelist()
 def run_group(site: str, group: str, trigger: str = "Manual") -> str:
-    """Create + queue a Smoke Run for every Test Case in a group."""
-    group_doc = frappe.get_doc("Smoke Test Group", group)
-    run = frappe.new_doc("Smoke Run")
+    """Create + queue a Release Test for every Test Case in a group."""
+    group_doc = frappe.get_doc("Test Case Group", group)
+    run = frappe.new_doc("Release Test")
     run.run_title = f"{group_doc.group_name} — {site}"
     run.site = site
     run.trigger = trigger
@@ -125,10 +125,10 @@ def run_group(site: str, group: str, trigger: str = "Manual") -> str:
 
 @frappe.whitelist()
 def test_connection(site: str) -> dict:
-    """Detect installed apps + versions for a Smoke Site and store the result."""
+    """Detect installed apps + versions for a Testing Site and store the result."""
     from frappe_smoke import api as engine
 
-    doc = frappe.get_doc("Smoke Site", site)
+    doc = frappe.get_doc("Testing Site", site)
     try:
         versions = engine.detect_site(_site_config(doc))
         summary = "OK — " + ", ".join(
@@ -147,8 +147,8 @@ def test_connection(site: str) -> dict:
 # ------------------------------------------------------------------- run a test
 @frappe.whitelist()
 def run_now(run: str) -> bool:
-    """Queue execution of a Smoke Run in the background."""
-    doc = frappe.get_doc("Smoke Run", run)
+    """Queue execution of a Release Test in the background."""
+    doc = frappe.get_doc("Release Test", run)
     doc.db_set("status", "Queued")
     frappe.db.commit()
     frappe.enqueue(
@@ -158,18 +158,18 @@ def run_now(run: str) -> bool:
 
 
 def execute_run(run: str) -> None:
-    """Run all selected suites for a Smoke Run's site and record results."""
+    """Run all selected suites for a Release Test's site and record results."""
     from frappe_smoke import api as engine
 
-    doc = frappe.get_doc("Smoke Run", run)
+    doc = frappe.get_doc("Release Test", run)
     doc.db_set("status", "Running")
     doc.db_set("started_at", now_datetime())
     frappe.db.commit()
 
     # Re-running a Run replaces its previous results.
-    frappe.db.delete("Smoke Result", {"run": run})
+    frappe.db.delete("Test Result", {"run": run})
 
-    site = frappe.get_doc("Smoke Site", doc.site)
+    site = frappe.get_doc("Testing Site", doc.site)
     suites = _suites_for_run(doc)
 
     try:
@@ -194,7 +194,7 @@ def execute_run(run: str) -> None:
 
     for suite in result.get("suites", []):
         errs = []
-        res = frappe.new_doc("Smoke Result")
+        res = frappe.new_doc("Test Result")
         res.run = run
         res.site = doc.site
         res.suite = suite["suite"]
@@ -240,12 +240,12 @@ def execute_run(run: str) -> None:
 # ----------------------------------------------------------------- plans + cron
 @frappe.whitelist()
 def run_plan(plan: str, trigger: str = "Manual") -> list[str]:
-    """Create + queue one Smoke Run per site in a Test Plan."""
+    """Create + queue one Release Test per site in a Test Plan."""
     p = frappe.get_doc("Smoke Test Plan", plan)
     case_links = [c.test_case for c in p.cases]
     runs = []
     for plan_site in p.sites:
-        run = frappe.new_doc("Smoke Run")
+        run = frappe.new_doc("Release Test")
         run.run_title = f"{p.plan_name} — {plan_site.site}"
         run.site = plan_site.site
         run.plan = plan
@@ -261,17 +261,17 @@ def run_plan(plan: str, trigger: str = "Manual") -> list[str]:
 
 @frappe.whitelist()
 def create_and_run(site: str, group: str | None = None, test_cases=None, title: str | None = None) -> str:
-    """Create + queue a Smoke Run from a group, an explicit case list, or all applicable.
+    """Create + queue a Release Test from a group, an explicit case list, or all applicable.
 
     Used by the Vue UI's New Run / re-run flows. ``test_cases`` may be a JSON string.
     """
-    run = frappe.new_doc("Smoke Run")
+    run = frappe.new_doc("Release Test")
     run.site = site
     run.trigger = "Manual"
 
     cases: list[str] = []
     if group:
-        group_doc = frappe.get_doc("Smoke Test Group", group)
+        group_doc = frappe.get_doc("Test Case Group", group)
         cases = [row.test_case for row in group_doc.test_cases]
         run.run_title = title or f"{group_doc.group_name} — {site}"
     elif test_cases:
@@ -293,14 +293,14 @@ def dashboard_stats() -> dict:
     """Aggregate counters for the Release Manager dashboard."""
     by_status: dict[str, int] = {}
     for row in frappe.db.sql(
-        "select status, count(name) as n from `tabSmoke Result` group by status", as_dict=True
+        "select status, count(name) as n from `tabTest Result` group by status", as_dict=True
     ):
         by_status[row.status] = row.n
     transactions = frappe.db.sql(
-        "select coalesce(sum(transactions_created), 0) from `tabSmoke Run`"
+        "select coalesce(sum(transactions_created), 0) from `tabRelease Test`"
     )[0][0]
     return {
-        "runs": frappe.db.count("Smoke Run"),
+        "runs": frappe.db.count("Release Test"),
         "tests_run": sum(n for s, n in by_status.items() if s != "Skipped"),
         "transactions": int(transactions or 0),
         "passed": by_status.get("Passed", 0),
@@ -312,9 +312,9 @@ def dashboard_stats() -> dict:
 
 @frappe.whitelist()
 def rerun(run: str) -> str:
-    """Clone a run's site + test cases into a fresh Smoke Run and queue it."""
-    src = frappe.get_doc("Smoke Run", run)
-    new = frappe.new_doc("Smoke Run")
+    """Clone a run's site + test cases into a fresh Release Test and queue it."""
+    src = frappe.get_doc("Release Test", run)
+    new = frappe.new_doc("Release Test")
     new.site = src.site
     new.run_title = src.run_title
     new.trigger = "Manual"

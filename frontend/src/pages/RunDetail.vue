@@ -89,9 +89,9 @@ const props = defineProps({ name: String });
 const router = useRouter();
 const name = props.name;
 
-const run = createDocumentResource({ doctype: "Smoke Run", name, auto: true });
+const run = createDocumentResource({ doctype: "Release Test", name, auto: true });
 const results = createListResource({
-  doctype: "Smoke Result",
+  doctype: "Test Result",
   fields: ["name", "suite", "status", "duration_ms", "action_status", "corrective_action"],
   filters: { run: name },
   orderBy: "suite asc",
@@ -106,7 +106,7 @@ const form = reactive({ action_status: "Open", corrective_action: "" });
 function select(r) {
   selected.value = r.name;
   detail.submit(
-    { doctype: "Smoke Result", name: r.name },
+    { doctype: "Test Result", name: r.name },
     {
       onSuccess: (doc) => {
         form.action_status = doc.action_status || "Open";
@@ -120,7 +120,7 @@ const saveRes = createResource({ url: "frappe.client.set_value" });
 function save() {
   saveRes.submit(
     {
-      doctype: "Smoke Result",
+      doctype: "Test Result",
       name: selected.value,
       fieldname: JSON.stringify({
         action_status: form.action_status,

@@ -1,7 +1,7 @@
 // Copyright (c) 2026, Smoke Console Contributors and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on("Smoke Test Group", {
+frappe.ui.form.on("Test Case Group", {
 	refresh(frm) {
 		if (frm.is_new()) return;
 		frm.add_custom_button(__("Run Group"), () => {
@@ -10,7 +10,7 @@ frappe.ui.form.on("Smoke Test Group", {
 					{
 						fieldname: "site",
 						fieldtype: "Link",
-						options: "Smoke Site",
+						options: "Testing Site",
 						label: __("Site"),
 						reqd: 1,
 					},
