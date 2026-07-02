@@ -222,11 +222,14 @@ def execute_run(run: str) -> None:
         log_lines.append(f"[{res.status}] {suite['suite']} ({suite.get('app_version') or '-'})")
         any_fail = any_fail or suite["status"] == "fail"
         any_pass = any_pass or suite["status"] == "pass"
+        # Stream progress so the dashboard terminal updates as suites finish.
+        doc.db_set("log", "\n".join(log_lines), commit=True)
 
     doc.db_set("total_steps", sum(totals.values()))
     doc.db_set("passed", totals.get("pass", 0))
     doc.db_set("failed", totals.get("fail", 0))
     doc.db_set("skipped", totals.get("skip", 0))
+    doc.db_set("transactions_created", result.get("transactions", 0))
     doc.db_set("detected_apps", json.dumps(result.get("versions", {}), indent=1))
     doc.db_set("status", "Failed" if any_fail and not any_pass else "Partial" if any_fail else "Passed")
     doc.db_set("finished_at", now_datetime())
@@ -283,6 +286,28 @@ def create_and_run(site: str, group: str | None = None, test_cases=None, title: 
     run_now(run.name)
     frappe.db.commit()
     return run.name
+
+
+@frappe.whitelist()
+def dashboard_stats() -> dict:
+    """Aggregate counters for the Release Manager dashboard."""
+    by_status: dict[str, int] = {}
+    for row in frappe.db.sql(
+        "select status, count(name) as n from `tabSmoke Result` group by status", as_dict=True
+    ):
+        by_status[row.status] = row.n
+    transactions = frappe.db.sql(
+        "select coalesce(sum(transactions_created), 0) from `tabSmoke Run`"
+    )[0][0]
+    return {
+        "runs": frappe.db.count("Smoke Run"),
+        "tests_run": sum(n for s, n in by_status.items() if s != "Skipped"),
+        "transactions": int(transactions or 0),
+        "passed": by_status.get("Passed", 0),
+        "failed": by_status.get("Failed", 0),
+        "skipped": by_status.get("Skipped", 0),
+        "partial": by_status.get("Partial", 0),
+    }
 
 
 @frappe.whitelist()

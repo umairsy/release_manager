@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 const routes = [
-  { path: "/", name: "RunsList", component: () => import("./pages/RunsList.vue") },
+  { path: "/", name: "Dashboard", component: () => import("./pages/Dashboard.vue") },
   { path: "/new", name: "NewRun", component: () => import("./pages/NewRun.vue") },
   {
     path: "/runs/:name",
@@ -12,7 +12,7 @@ const routes = [
 ];
 
 export const router = createRouter({
-  history: createWebHistory("/smoke/"),
+  history: createWebHistory("/release/"),
   routes,
 });
 
@@ -20,7 +20,7 @@ export const router = createRouter({
 router.beforeEach((to, from, next) => {
   const user = window.boot?.session_user;
   if (!user || user === "Guest") {
-    window.location.href = "/login?redirect-to=/smoke";
+    window.location.href = "/login?redirect-to=/release";
     return;
   }
   next();

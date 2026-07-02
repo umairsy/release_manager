@@ -3,7 +3,7 @@
 frontend/node_modules/
 frontend/dist/
 smoke_console/public/frontend/
-smoke_console/www/smoke/index.html
+smoke_console/www/release/index.html
 
 # Python + generated
 __pycache__/

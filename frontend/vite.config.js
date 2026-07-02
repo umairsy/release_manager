@@ -11,7 +11,7 @@ export default defineConfig({
       buildConfig: {
         outDir: "../smoke_console/public/frontend",
         emptyOutDir: true,
-        indexHtmlPath: "../smoke_console/www/smoke/index.html",
+        indexHtmlPath: "../smoke_console/www/release/index.html",
       },
     }),
     vue(),

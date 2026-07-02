@@ -21,6 +21,7 @@
   "passed",
   "failed",
   "skipped",
+  "transactions_created",
   "column_break_summary",
   "detected_apps",
   "section_log",
@@ -119,6 +120,12 @@
    "fieldname": "skipped",
    "fieldtype": "Int",
    "label": "Skipped",
+   "read_only": 1
+  },
+  {
+   "fieldname": "transactions_created",
+   "fieldtype": "Int",
+   "label": "Transactions Created",
    "read_only": 1
   },
   {
