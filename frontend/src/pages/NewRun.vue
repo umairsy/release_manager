@@ -108,11 +108,11 @@ const groupOptions = computed(() => ["", ...(groups.data || []).map((g) => g.nam
 const selectedSite = computed(() => (sites.data || []).find((s) => s.name === site.value));
 
 const create = createResource({
-  url: "smoke_console.api.create_and_run",
+  url: "release_manager.api.create_and_run",
   onSuccess: (name) => router.push(`/runs/${name}`),
 });
 const uiCreate = createResource({
-  url: "smoke_console.api.run_ui_test",
+  url: "release_manager.api.run_ui_test",
   onSuccess: (name) => router.push(`/runs/${name}`),
 });
 

@@ -56,7 +56,7 @@ import { statusTheme } from "@/lib/status";
 
 const router = useRouter();
 
-const stats = createResource({ url: "smoke_console.api.dashboard_stats", auto: true });
+const stats = createResource({ url: "release_manager.api.dashboard_stats", auto: true });
 const runs = createListResource({
   doctype: "Release Test",
   fields: ["name", "run_title", "site", "status", "layer", "passed", "failed", "modified"],

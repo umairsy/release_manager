@@ -1,0 +1,88 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:test_case_name",
+ "creation": "2026-06-29 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "test_case_name",
+  "suite",
+  "required_app",
+  "enabled",
+  "description",
+  "steps_preview"
+ ],
+ "fields": [
+  {
+   "fieldname": "test_case_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Test Case Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "suite",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Engine Suite",
+   "reqd": 1,
+   "description": "Name of the suite in the release_tests engine that this case runs."
+  },
+  {
+   "fieldname": "required_app",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Required App",
+   "description": "Suite is skipped on a site where this app is not installed."
+  },
+  {
+   "default": "1",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "steps_preview",
+   "fieldtype": "Small Text",
+   "label": "Steps",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-29 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Release Manager",
+ "name": "Smoke Test Case",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "test_case_name"
+}

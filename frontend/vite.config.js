@@ -9,9 +9,9 @@ export default defineConfig({
       frappeProxy: true,
       jinjaBootData: true,
       buildConfig: {
-        outDir: "../smoke_console/public/frontend",
+        outDir: "../release_manager/public/frontend",
         emptyOutDir: true,
-        indexHtmlPath: "../smoke_console/www/release/index.html",
+        indexHtmlPath: "../release_manager/www/release/index.html",
       },
     }),
     vue(),

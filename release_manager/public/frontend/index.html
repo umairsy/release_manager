@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="{{ boot.lang or 'en' }}" dir="{{ boot.dir or 'ltr' }}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Release Manager</title>
+    <script type="module" crossorigin src="/assets/release_manager/frontend/assets/index-adaa935f.js"></script>
+    <link rel="stylesheet" href="/assets/release_manager/frontend/assets/index-f9232fbc.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    
+    <script>
+      window.csrf_token = "{{ boot.csrf_token }}";
+      window.site_name = "{{ boot.site_name }}";
+      window.boot = {{ boot | tojson }};
+    </script>
+  
+          <script>
+              {% for key in boot %}
+              window["{{ key }}"] = {{ boot[key] | tojson }};
+              {% endfor %}
+          </script>
+          </body>
+          
+</html>

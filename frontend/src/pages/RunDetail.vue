@@ -139,11 +139,11 @@ function save() {
 }
 
 const rerunRes = createResource({
-  url: "smoke_console.api.rerun",
+  url: "release_manager.api.rerun",
   onSuccess: (n) => router.push(`/runs/${n}`),
 });
 const rerunSuite = createResource({
-  url: "smoke_console.api.create_and_run",
+  url: "release_manager.api.create_and_run",
   onSuccess: (n) => router.push(`/runs/${n}`),
 });
 function rerunOneSuite() {
