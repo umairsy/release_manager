@@ -37,7 +37,10 @@
           ]"
           @click="it.result && select(it)"
         >
-          <span class="w-5 text-center text-base leading-none" :class="glyphClass(it.status)">
+          <span
+            class="w-5 h-5 shrink-0 rounded-full inline-flex items-center justify-center text-xs font-bold"
+            :class="badgeClass(it.status)"
+          >
             <span v-if="it.status === 'Running'" class="inline-block animate-spin">◌</span>
             <span v-else>{{ glyph(it.status) }}</span>
           </span>
@@ -122,20 +125,20 @@ function select(it) {
   );
 }
 
-// Frappe-Cloud-style status glyphs for the queue.
+// Frappe-Cloud-style status badges: a solid, high-contrast circle per suite.
 function glyph(status) {
-  return { Passed: "✓", Failed: "✕", Partial: "●", Skipped: "–", Queued: "○" }[status] || "○";
+  return { Passed: "✓", Failed: "✕", Partial: "!", Skipped: "–", Running: "" }[status] || "";
 }
-function glyphClass(status) {
+function badgeClass(status) {
   return (
     {
-      Passed: "text-ink-green-3",
-      Failed: "text-ink-red-3",
-      Partial: "text-ink-amber-3",
-      Running: "text-ink-blue-3",
-      Skipped: "text-ink-gray-4",
-      Queued: "text-ink-gray-4",
-    }[status] || "text-ink-gray-4"
+      Passed: "bg-green-600 text-white",
+      Failed: "bg-red-600 text-white",
+      Partial: "bg-amber-500 text-white",
+      Running: "bg-blue-600 text-white",
+      Skipped: "bg-gray-400 text-white",
+      Queued: "border-2 border-gray-300 text-gray-400",
+    }[status] || "border-2 border-gray-300 text-gray-400"
   );
 }
 

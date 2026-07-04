@@ -432,6 +432,14 @@ def run_progress(run: str) -> dict:
         if suite not in planned:
             planned.append(suite)
 
+    # UI runs have no test cases — enumerate the version's Cypress specs so they
+    # show up as a queue too (spec relative path matches the Test Result suite).
+    if not planned and doc.layer == "UI":
+        version = frappe.db.get_value("Testing Site", doc.site, "frappe_version") or "v16"
+        spec_dir = os.path.join(_ui_tests_path(), "cypress", "e2e", version)
+        if os.path.isdir(spec_dir):
+            planned = [f"cypress/e2e/{version}/{f}" for f in sorted(os.listdir(spec_dir)) if f.endswith(".cy.js")]
+
     running = doc.status in ("Queued", "Running")
     order = planned or sorted(results.keys())
     items, first_pending = [], True
