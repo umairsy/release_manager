@@ -411,6 +411,45 @@ def _record_ui_results(doc, version: str, data: dict, proc) -> None:
     frappe.db.commit()
 
 
+@frappe.whitelist()
+def run_progress(run: str) -> dict:
+    """A run's planned suites as a live queue, merged with completed results.
+
+    Powers the Frappe-Cloud-style job list: every selected suite shows up front as
+    ``Queued``; the next one becomes ``Running`` while the run is in flight; finished
+    ones carry their real status + Test Result name so the UI can green-tick them.
+    """
+    doc = frappe.get_doc("Release Test", run)
+    results = {
+        r.suite: r
+        for r in frappe.get_all(
+            "Test Result", filters={"run": run}, fields=["name", "suite", "status", "duration_ms"]
+        )
+    }
+    planned: list[str] = []
+    for row in doc.test_cases:
+        suite = frappe.db.get_value("Smoke Test Case", row.test_case, "suite") or row.test_case
+        if suite not in planned:
+            planned.append(suite)
+
+    running = doc.status in ("Queued", "Running")
+    order = planned or sorted(results.keys())
+    items, first_pending = [], True
+    for suite in order:
+        res = results.get(suite)
+        if res:
+            items.append({"suite": suite, "status": res.status, "duration_ms": res.duration_ms, "result": res.name})
+        else:
+            status = "Running" if (running and first_pending) else "Queued"
+            first_pending = False
+            items.append({"suite": suite, "status": status, "duration_ms": None, "result": None})
+    seen = {i["suite"] for i in items}
+    for suite, res in results.items():
+        if suite not in seen:
+            items.append({"suite": suite, "status": res.status, "duration_ms": res.duration_ms, "result": res.name})
+    return {"run_status": doc.status, "log": doc.log, "items": items}
+
+
 # ----------------------------------------------------------------- plans + cron
 @frappe.whitelist()
 def run_plan(plan: str, trigger: str = "Manual") -> list[str]:
