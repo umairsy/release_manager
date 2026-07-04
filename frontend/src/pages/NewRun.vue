@@ -34,8 +34,9 @@
           v-model="headed"
         />
         <p class="text-xs text-ink-gray-5">
-          Off by default: runs in the background and records a video. Either way, on macOS the
-          bench must be started from a Terminal (GUI) session for Cypress to launch.
+          On by default: the browser window opens so you can watch the test run. Uncheck to run
+          in the background (video only). Either way, on macOS the bench must be started from a
+          Terminal (GUI) session for Cypress to launch.
         </p>
       </div>
 
@@ -76,7 +77,7 @@ const router = useRouter();
 const site = ref("");
 const group = ref("");
 const testType = ref("API");
-const headed = ref(false);
+const headed = ref(true);
 const typeOptions = ["API", "UI"];
 
 const sites = createListResource({
