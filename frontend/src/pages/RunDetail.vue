@@ -36,6 +36,13 @@
         </div>
       </div>
 
+      <!-- Output / log — always available; the only place errors show when a run
+           produced no results (e.g. a UI run whose browser failed to launch). -->
+      <div v-if="run.doc?.log" class="md:col-span-2 border rounded-lg self-start">
+        <div class="px-3 py-2 text-xs font-medium text-ink-gray-5 uppercase">Output / log</div>
+        <pre class="m-0 rounded-b-lg bg-gray-900 text-gray-100 font-mono text-xs p-3 max-h-96 overflow-auto whitespace-pre-wrap">{{ run.doc.log }}</pre>
+      </div>
+
       <!-- Right: Output + Next actionable -->
       <div class="border rounded-lg self-start">
         <div v-if="!detail.data" class="p-6 text-sm text-ink-gray-5">

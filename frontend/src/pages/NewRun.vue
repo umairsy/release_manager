@@ -27,22 +27,29 @@
         </p>
       </template>
 
-      <FormControl
-        v-else
-        type="checkbox"
-        label="Show the browser while running (headed)"
-        v-model="headed"
-      />
+      <div v-else class="space-y-1">
+        <FormControl
+          type="checkbox"
+          label="Show the browser while running (headed)"
+          v-model="headed"
+        />
+        <p class="text-xs text-ink-gray-5">
+          Off by default: runs in the background and records a video. Either way, on macOS the
+          bench must be started from a Terminal (GUI) session for Cypress to launch.
+        </p>
+      </div>
 
       <ErrorMessage :message="create.error || uiCreate.error" />
-      <Button
-        variant="solid"
-        :loading="create.loading || uiCreate.loading"
-        :disabled="!site"
-        @click="run"
-      >
-        {{ testType === "UI" ? "Run UI test" : "Run" }}
-      </Button>
+      <div class="pt-2">
+        <Button
+          variant="solid"
+          :loading="create.loading || uiCreate.loading"
+          :disabled="!site"
+          @click="run"
+        >
+          {{ testType === "UI" ? "Run UI test" : "Run" }}
+        </Button>
+      </div>
     </div>
 
     <!-- Running jobs terminal — only while something is actually running -->
@@ -69,7 +76,7 @@ const router = useRouter();
 const site = ref("");
 const group = ref("");
 const testType = ref("API");
-const headed = ref(true);
+const headed = ref(false);
 const typeOptions = ["API", "UI"];
 
 const sites = createListResource({

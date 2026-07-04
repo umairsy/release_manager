@@ -333,10 +333,24 @@ def execute_ui_run(run: str, headed: int = 1) -> None:
     _record_ui_results(doc, version, data, proc)
 
 
+def _GUI_HINT() -> str:
+    return (
+        "Cypress could not start a browser. On macOS the bench must be started from a "
+        "GUI Terminal session (run `bench start` in Terminal.app), not a headless/SSH "
+        "context — Electron needs a window session even in headless mode. Start the bench "
+        "there and re-run. (For unattended runs, use the Linux CI workflow.)"
+    )
+
+
 def _record_ui_results(doc, version: str, data: dict, proc) -> None:
     if data.get("error") or (not data.get("specs") and proc.returncode):
+        raw = data.get("error") or (proc.stderr or proc.stdout or "Cypress run failed")
+        launch_failed = any(
+            marker in raw
+            for marker in ("Could not find Cypress test run results", "no-sandbox", "smoke-test")
+        )
+        message = (_GUI_HINT() + "\n\n---\n" + raw) if launch_failed else raw
         doc.db_set("status", "Failed")
-        message = data.get("error") or (proc.stderr or proc.stdout or "Cypress run failed")
         doc.db_set("log", message[:5000])
         doc.db_set("finished_at", now_datetime())
         frappe.db.commit()
@@ -481,8 +495,14 @@ def dashboard_stats() -> dict:
 
 @frappe.whitelist()
 def rerun(run: str) -> str:
-    """Clone a run's site + test cases into a fresh Release Test and queue it."""
+    """Clone a run's site + test cases into a fresh Release Test and queue it.
+
+    UI runs re-run through the Cypress path so "Run again" repeats the browser test
+    instead of falling back to the API engine.
+    """
     src = frappe.get_doc("Release Test", run)
+    if src.layer == "UI":
+        return run_ui_test(src.site)
     new = frappe.new_doc("Release Test")
     new.site = src.site
     new.run_title = src.run_title
