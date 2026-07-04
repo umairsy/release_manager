@@ -6,20 +6,42 @@
     </div>
 
     <div class="space-y-4 max-w-lg">
+      <FormControl type="select" label="Test type" :options="typeOptions" v-model="testType" />
+
       <FormControl type="select" label="Site" :options="siteOptions" v-model="site" />
-      <FormControl
-        type="select"
-        label="Test Group (optional)"
-        :options="groupOptions"
-        v-model="group"
-      />
-      <p class="text-sm text-ink-gray-5">
-        Pick a group to run all its test cases (e.g. “ERPNext - Distribution”), or leave it blank
-        to run everything applicable on the site.
+      <p v-if="selectedSite" class="text-sm text-ink-gray-5">
+        Frappe version: <b>{{ selectedSite.frappe_version || "v16" }}</b>
+        <span v-if="testType === 'UI'"> — runs the <code>cypress/e2e/{{ selectedSite.frappe_version || "v16" }}</code> specs.</span>
       </p>
-      <ErrorMessage :message="create.error" />
-      <Button variant="solid" :loading="create.loading" :disabled="!site" @click="run">
-        Run
+
+      <template v-if="testType === 'API'">
+        <FormControl
+          type="select"
+          label="Test Group (optional)"
+          :options="groupOptions"
+          v-model="group"
+        />
+        <p class="text-sm text-ink-gray-5">
+          Pick a group to run all its test cases (e.g. “ERPNext - Distribution”), or leave it blank
+          to run everything applicable on the site.
+        </p>
+      </template>
+
+      <FormControl
+        v-else
+        type="checkbox"
+        label="Show the browser while running (headed)"
+        v-model="headed"
+      />
+
+      <ErrorMessage :message="create.error || uiCreate.error" />
+      <Button
+        variant="solid"
+        :loading="create.loading || uiCreate.loading"
+        :disabled="!site"
+        @click="run"
+      >
+        {{ testType === "UI" ? "Run UI test" : "Run" }}
       </Button>
     </div>
 
@@ -46,10 +68,13 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 const site = ref("");
 const group = ref("");
+const testType = ref("API");
+const headed = ref(true);
+const typeOptions = ["API", "UI"];
 
 const sites = createListResource({
   doctype: "Testing Site",
-  fields: ["name"],
+  fields: ["name", "frappe_version"],
   filters: { enabled: 1 },
   pageLength: 100,
   auto: true,
@@ -72,15 +97,24 @@ const running = createListResource({
 
 const siteOptions = computed(() => (sites.data || []).map((s) => s.name));
 const groupOptions = computed(() => ["", ...(groups.data || []).map((g) => g.name)]);
+const selectedSite = computed(() => (sites.data || []).find((s) => s.name === site.value));
 
 const create = createResource({
   url: "smoke_console.api.create_and_run",
   onSuccess: (name) => router.push(`/runs/${name}`),
 });
+const uiCreate = createResource({
+  url: "smoke_console.api.run_ui_test",
+  onSuccess: (name) => router.push(`/runs/${name}`),
+});
 
 function run() {
   if (!site.value) return;
-  create.submit({ site: site.value, group: group.value || null });
+  if (testType.value === "UI") {
+    uiCreate.submit({ site: site.value, headed: headed.value ? 1 : 0 });
+  } else {
+    create.submit({ site: site.value, group: group.value || null });
+  }
 }
 
 // Keep the terminal live while jobs are in flight.

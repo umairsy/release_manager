@@ -9,6 +9,7 @@
  "field_order": [
   "run_title",
   "site",
+  "layer",
   "test_cases",
   "column_break_run",
   "plan",
@@ -42,6 +43,16 @@
    "label": "Site",
    "options": "Testing Site",
    "reqd": 1
+  },
+  {
+   "default": "API",
+   "fieldname": "layer",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Layer",
+   "options": "API\nUI",
+   "read_only": 1
   },
   {
    "fieldname": "test_cases",

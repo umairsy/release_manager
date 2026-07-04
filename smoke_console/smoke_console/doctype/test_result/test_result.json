@@ -9,6 +9,7 @@
  "field_order": [
   "run",
   "site",
+  "layer",
   "suite",
   "test_case",
   "app_version",
@@ -39,6 +40,15 @@
    "in_standard_filter": 1,
    "label": "Site",
    "options": "Testing Site"
+  },
+  {
+   "default": "API",
+   "fieldname": "layer",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Layer",
+   "options": "API\nUI"
   },
   {
    "fieldname": "suite",

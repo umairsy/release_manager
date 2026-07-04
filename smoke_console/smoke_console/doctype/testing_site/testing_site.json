@@ -10,6 +10,7 @@
   "site_label",
   "enabled",
   "environment",
+  "frappe_version",
   "column_break_conn",
   "base_url",
   "host_header",
@@ -49,6 +50,16 @@
    "in_standard_filter": 1,
    "label": "Environment",
    "options": "Local\nFrappe Cloud\nOther"
+  },
+  {
+   "default": "v16",
+   "fieldname": "frappe_version",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Frappe Version",
+   "options": "v16\nv15\ndevelop",
+   "description": "Selects the matching UI (Cypress) spec set, e.g. cypress/e2e/v16."
   },
   {
    "fieldname": "column_break_conn",

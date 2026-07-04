@@ -1,4 +1,5 @@
 {
+ "app": "smoke_console",
  "charts": [
   {
    "chart_name": "Smoke - Results by Status",

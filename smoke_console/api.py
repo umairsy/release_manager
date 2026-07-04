@@ -8,6 +8,10 @@ module turns its plain-dict results into Test Result records.
 from __future__ import annotations
 
 import json
+import os
+import shutil
+import subprocess
+import tempfile
 
 import frappe
 from frappe.utils import now_datetime
@@ -237,6 +241,162 @@ def execute_run(run: str) -> None:
     frappe.db.commit()
 
 
+# -------------------------------------------------------------- UI (Cypress) run
+_UI_TESTS_DEFAULT = os.path.expanduser("~/frappe_smoke/ui")
+_CY_STATE = {"passed": "pass", "failed": "fail", "pending": "skip", "skipped": "skip"}
+
+
+def _ui_tests_path() -> str:
+    return frappe.conf.get("release_ui_tests_path") or _UI_TESTS_DEFAULT
+
+
+def _node_binary() -> str:
+    for cand in (shutil.which("node"), "/opt/homebrew/bin/node", "/usr/local/bin/node"):
+        if cand and os.path.exists(cand):
+            return cand
+    frappe.throw("Node.js not found — install it or set it on the worker's PATH.")
+
+
+def _cypress_env(site_doc) -> dict:
+    """Forward the site's URL + login credentials to the Cypress specs."""
+    env = dict(os.environ)
+    env["CYPRESS_BASE_URL"] = site_doc.base_url
+    if site_doc.auth_type == "login":
+        if site_doc.username:
+            env["CYPRESS_ADMIN_USER"] = site_doc.username
+        password = site_doc.get_password("password") if site_doc.password else None
+        if password:
+            env["CYPRESS_ADMIN_PASSWORD"] = password
+    return env
+
+
+@frappe.whitelist()
+def run_ui_test(site: str, headed: int = 1) -> str:
+    """Create + queue a UI (Cypress) Release Test for the site's Frappe version."""
+    site_doc = frappe.get_doc("Testing Site", site)
+    version = site_doc.frappe_version or "v16"
+    run = frappe.new_doc("Release Test")
+    run.site = site
+    run.layer = "UI"
+    run.trigger = "Manual"
+    run.run_title = f"UI Tests ({version}) — {site}"
+    run.insert(ignore_permissions=True)
+    run.db_set("status", "Queued")
+    frappe.enqueue(
+        "smoke_console.api.execute_ui_run",
+        queue="long",
+        timeout=1500,
+        run=run.name,
+        headed=int(headed),
+        enqueue_after_commit=True,
+    )
+    frappe.db.commit()
+    return run.name
+
+
+def execute_ui_run(run: str, headed: int = 1) -> None:
+    """Shell out to Cypress for the site's version and record UI Test Results."""
+    doc = frappe.get_doc("Release Test", run)
+    doc.db_set("status", "Running")
+    doc.db_set("started_at", now_datetime())
+    frappe.db.delete("Test Result", {"run": run})
+    frappe.db.commit()
+
+    site_doc = frappe.get_doc("Testing Site", doc.site)
+    version = site_doc.frappe_version or "v16"
+    ui_path = _ui_tests_path()
+    result_file = os.path.join(tempfile.gettempdir(), f"cy-{run}.json")
+
+    env = _cypress_env(site_doc)
+    env.update(
+        {"SPEC_DIR": f"cypress/e2e/{version}", "RESULT_FILE": result_file, "HEADED": "1" if int(headed) else "0"}
+    )
+    doc.db_set(
+        "log", f"Launching Cypress ({version}, {'headed' if int(headed) else 'headless'}) in {ui_path}…", commit=True
+    )
+
+    try:
+        proc = subprocess.run(
+            [_node_binary(), "run.js"], cwd=ui_path, env=env, capture_output=True, text=True, timeout=1200
+        )
+    except Exception as exc:  # noqa: BLE001
+        doc.db_set("status", "Failed")
+        doc.db_set("log", f"Failed to launch Cypress: {exc}")
+        doc.db_set("finished_at", now_datetime())
+        frappe.db.commit()
+        return
+
+    data = {}
+    if os.path.exists(result_file):
+        with open(result_file) as handle:
+            data = json.load(handle)
+    _record_ui_results(doc, version, data, proc)
+
+
+def _record_ui_results(doc, version: str, data: dict, proc) -> None:
+    if data.get("error") or (not data.get("specs") and proc.returncode):
+        doc.db_set("status", "Failed")
+        message = data.get("error") or (proc.stderr or proc.stdout or "Cypress run failed")
+        doc.db_set("log", message[:5000])
+        doc.db_set("finished_at", now_datetime())
+        frappe.db.commit()
+        return
+
+    totals = {"pass": 0, "fail": 0, "skip": 0}
+    log_lines: list[str] = []
+    any_fail = any_pass = False
+
+    for spec in data.get("specs", []):
+        errs = []
+        res = frappe.new_doc("Test Result")
+        res.run = doc.name
+        res.site = doc.site
+        res.layer = "UI"
+        res.suite = spec.get("spec")
+        res.test_case = spec.get("spec")
+        res.app_version = version
+        spec_fail = spec_pass = False
+        duration = 0
+        for test in spec.get("tests", []):
+            status = _CY_STATE.get(test.get("state"), "skip")
+            totals[status] += 1
+            duration += int(test.get("duration") or 0)
+            res.append(
+                "steps",
+                {
+                    "suite": spec.get("spec"),
+                    "step": test.get("title"),
+                    "status": status,
+                    "duration_ms": int(test.get("duration") or 0),
+                    "error": test.get("error"),
+                },
+            )
+            if status == "fail":
+                spec_fail = True
+                errs.append(f"{test.get('title')}: {test.get('error')}")
+            elif status == "pass":
+                spec_pass = True
+        res.duration_ms = duration
+        res.status = "Failed" if spec_fail and not spec_pass else "Partial" if spec_fail else "Passed"
+        res.error = "\n".join(e for e in errs if e)
+        res.insert(ignore_permissions=True)
+        log_lines.append(f"[{res.status}] {spec.get('spec')}")
+        any_fail = any_fail or spec_fail
+        any_pass = any_pass or spec_pass
+        doc.db_set("log", "\n".join(log_lines), commit=True)
+
+    doc.db_set("total_steps", sum(totals.values()))
+    doc.db_set("passed", totals["pass"])
+    doc.db_set("failed", totals["fail"])
+    doc.db_set("skipped", totals["skip"])
+    doc.db_set("status", "Failed" if any_fail and not any_pass else "Partial" if any_fail else "Passed")
+    doc.db_set("finished_at", now_datetime())
+    videos = [s["video"] for s in data.get("specs", []) if s.get("video")]
+    tail = ("\n\nVideos:\n" + "\n".join(videos)) if videos else ""
+    doc.db_set("log", ("\n".join(log_lines) or "No specs ran.") + tail)
+    frappe.db.commit()
+
+
 # ----------------------------------------------------------------- plans + cron
 @frappe.whitelist()
 def run_plan(plan: str, trigger: str = "Manual") -> list[str]:
@@ -296,6 +456,13 @@ def dashboard_stats() -> dict:
         "select status, count(name) as n from `tabTest Result` group by status", as_dict=True
     ):
         by_status[row.status] = row.n
+    by_layer: dict[str, int] = {}
+    for row in frappe.db.sql(
+        "select coalesce(layer,'API') as layer, count(name) as n from `tabTest Result`"
+        " where status != 'Skipped' group by layer",
+        as_dict=True,
+    ):
+        by_layer[row.layer] = row.n
     transactions = frappe.db.sql(
         "select coalesce(sum(transactions_created), 0) from `tabRelease Test`"
     )[0][0]
@@ -307,6 +474,8 @@ def dashboard_stats() -> dict:
         "failed": by_status.get("Failed", 0),
         "skipped": by_status.get("Skipped", 0),
         "partial": by_status.get("Partial", 0),
+        "api_tests": by_layer.get("API", 0),
+        "ui_tests": by_layer.get("UI", 0),
     }
 
 

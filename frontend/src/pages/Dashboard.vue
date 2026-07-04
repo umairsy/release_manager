@@ -9,9 +9,10 @@
     </div>
 
     <!-- Counter cards -->
-    <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
       <Stat label="Runs" :value="stats.data?.runs" />
-      <Stat label="Test cases run" :value="stats.data?.tests_run" />
+      <Stat label="API tests" :value="stats.data?.api_tests" />
+      <Stat label="UI tests" :value="stats.data?.ui_tests" tone="blue" />
       <Stat label="Transactions" :value="stats.data?.transactions" />
       <Stat label="Passed" :value="stats.data?.passed" tone="green" />
       <Stat label="Failed" :value="stats.data?.failed" tone="red" />
@@ -29,6 +30,7 @@
           @click="router.push(`/runs/${r.name}`)"
         >
           <Badge :theme="statusTheme(r.status)" :label="r.status" />
+          <Badge v-if="r.layer === 'UI'" theme="blue" label="UI" />
           <div class="flex-1 min-w-0">
             <div class="font-medium truncate">{{ r.run_title || r.name }}</div>
             <div class="text-sm text-ink-gray-5">{{ r.site }} · {{ r.name }}</div>
@@ -57,7 +59,7 @@ const router = useRouter();
 const stats = createResource({ url: "smoke_console.api.dashboard_stats", auto: true });
 const runs = createListResource({
   doctype: "Release Test",
-  fields: ["name", "run_title", "site", "status", "passed", "failed", "modified"],
+  fields: ["name", "run_title", "site", "status", "layer", "passed", "failed", "modified"],
   orderBy: "modified desc",
   pageLength: 15,
   auto: true,
@@ -78,6 +80,6 @@ const Stat = (props) =>
   ]);
 Stat.props = ["label", "value", "tone"];
 function toneClass(tone) {
-  return { green: "text-ink-green-3", red: "text-ink-red-3", gray: "text-ink-gray-5" }[tone] || "";
+  return { green: "text-ink-green-3", red: "text-ink-red-3", gray: "text-ink-gray-5", blue: "text-ink-blue-3" }[tone] || "";
 }
 </script>
