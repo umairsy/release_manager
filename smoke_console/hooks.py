@@ -23,6 +23,7 @@ add_to_apps_screen = [
     {
         "name": "smoke_console",
         "title": "Releases",
+        "logo": "/assets/smoke_console/release-logo.svg",
         "route": "/release",
     }
 ]

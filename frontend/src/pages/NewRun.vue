@@ -23,17 +23,16 @@
       </Button>
     </div>
 
-    <!-- Running jobs terminal -->
-    <div>
+    <!-- Running jobs terminal — only while something is actually running -->
+    <div v-if="running.data && running.data.length">
       <div class="text-xs font-medium text-ink-gray-5 uppercase mb-1">Running jobs</div>
-      <div class="rounded-lg bg-gray-900 text-gray-100 font-mono text-xs p-3 min-h-24 max-h-72 overflow-auto">
-        <template v-if="running.data && running.data.length">
-          <div v-for="r in running.data" :key="r.name" class="mb-2">
-            <div class="text-blue-300">▶ {{ r.run_title || r.name }} — {{ r.status }} ({{ r.site }})</div>
-            <pre class="whitespace-pre-wrap text-gray-300">{{ r.log || "…" }}</pre>
-          </div>
-        </template>
-        <div v-else class="text-gray-500">No running jobs.</div>
+      <div class="rounded-lg bg-gray-900 text-gray-100 font-mono text-xs p-3 max-h-72 overflow-auto">
+        <div v-for="r in running.data" :key="r.name" class="mb-2">
+          <a class="text-blue-300 hover:underline" @click="router.push(`/runs/${r.name}`)">
+            ▶ {{ r.run_title || r.name }} — {{ r.status }} ({{ r.site }})
+          </a>
+          <pre class="whitespace-pre-wrap text-gray-300">{{ r.log || "…" }}</pre>
+        </div>
       </div>
     </div>
   </div>
