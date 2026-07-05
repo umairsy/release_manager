@@ -89,6 +89,8 @@ def seed_example_groups() -> int:
         "erpnext": "ERPNext - Distribution",
         "hrms": "Frappe HR",
         "frappe": "Framework",
+        "india_compliance": "India Compliance",
+        "crm": "Frappe CRM",
     }
     by_app: dict[str, list[str]] = {}
     for case in frappe.get_all(
