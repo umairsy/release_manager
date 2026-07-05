@@ -164,79 +164,85 @@ def run_now(run: str) -> bool:
 
 
 def execute_run(run: str) -> None:
-    """Run all selected suites for a Release Test's site and record results."""
+    """Run selected suites for a Release Test's site, recording each suite live.
+
+    Streams via ``engine.iter_run_site`` so every suite's Test Result + the run
+    log/counters are committed the moment that suite finishes — the RunDetail
+    poller then ticks the queue green and grows the log in real time.
+    """
     from release_tests import api as engine
 
     doc = frappe.get_doc("Release Test", run)
     doc.db_set("status", "Running")
     doc.db_set("started_at", now_datetime())
+    frappe.db.delete("Test Result", {"run": run})  # re-running replaces prior results
     frappe.db.commit()
-
-    # Re-running a Run replaces its previous results.
-    frappe.db.delete("Test Result", {"run": run})
 
     site = frappe.get_doc("Testing Site", doc.site)
     suites = _suites_for_run(doc)
 
-    try:
-        result = engine.run_site(_site_config(site), suites=suites)
-    except Exception as exc:  # noqa: BLE001
-        doc.db_set("status", "Failed")
-        doc.db_set("log", f"Connection/execution error: {exc}")
-        doc.db_set("finished_at", now_datetime())
-        frappe.db.commit()
-        return
-
-    if result.get("error"):
-        doc.db_set("status", "Failed")
-        doc.db_set("log", result["error"])
-        doc.db_set("finished_at", now_datetime())
-        frappe.db.commit()
-        return
-
     totals = {"pass": 0, "fail": 0, "skip": 0}
-    log_lines = []
+    log_lines: list[str] = []
     any_fail = any_pass = False
 
-    for suite in result.get("suites", []):
-        errs = []
-        res = frappe.new_doc("Test Result")
-        res.run = run
-        res.site = doc.site
-        res.suite = suite["suite"]
-        res.test_case = suite["suite"]
-        res.app_version = suite.get("app_version")
-        res.status = _STEP_TO_RESULT.get(suite["status"], "Skipped")
-        res.duration_ms = sum(st["duration_ms"] for st in suite["steps"])
-        for st in suite["steps"]:
-            totals[st["status"]] = totals.get(st["status"], 0) + 1
-            res.append(
-                "steps",
-                {
-                    "suite": st["suite"],
-                    "step": st["step"],
-                    "status": st["status"],
-                    "duration_ms": st["duration_ms"],
-                    "error": st.get("error"),
-                },
-            )
-            if st.get("error"):
-                errs.append(f"{st['step']}: {st['error']}")
-        res.error = "\n".join(errs)
-        res.insert(ignore_permissions=True)
+    try:
+        for event in engine.iter_run_site(_site_config(site), suites=suites):
+            etype = event.get("type")
+            if etype == "error":
+                doc.db_set("status", "Failed")
+                doc.db_set("log", event["error"], commit=True)
+                doc.db_set("finished_at", now_datetime())
+                frappe.db.commit()
+                return
+            if etype == "versions":
+                doc.db_set("detected_apps", json.dumps(event.get("versions", {}), indent=1), commit=True)
+                continue
+            if etype == "done":
+                doc.db_set("transactions_created", event.get("transactions", 0), commit=True)
+                continue
 
-        log_lines.append(f"[{res.status}] {suite['suite']} ({suite.get('app_version') or '-'})")
-        any_fail = any_fail or suite["status"] == "fail"
-        any_pass = any_pass or suite["status"] == "pass"
-        # Stream progress so the dashboard terminal updates as suites finish.
-        doc.db_set("log", "\n".join(log_lines), commit=True)
+            suite = event["suite"]  # a suite just finished — record it now
+            errs = []
+            res = frappe.new_doc("Test Result")
+            res.run = run
+            res.site = doc.site
+            res.suite = suite["suite"]
+            res.test_case = suite["suite"]
+            res.app_version = suite.get("app_version")
+            res.status = _STEP_TO_RESULT.get(suite["status"], "Skipped")
+            res.duration_ms = sum(st["duration_ms"] for st in suite["steps"])
+            for st in suite["steps"]:
+                totals[st["status"]] = totals.get(st["status"], 0) + 1
+                res.append(
+                    "steps",
+                    {
+                        "suite": st["suite"],
+                        "step": st["step"],
+                        "status": st["status"],
+                        "duration_ms": st["duration_ms"],
+                        "error": st.get("error"),
+                    },
+                )
+                if st.get("error"):
+                    errs.append(f"{st['step']}: {st['error']}")
+            res.error = "\n".join(errs)
+            res.insert(ignore_permissions=True)
 
-    doc.db_set("total_steps", sum(totals.values()))
-    doc.db_set("passed", totals.get("pass", 0))
-    doc.db_set("failed", totals.get("fail", 0))
-    doc.db_set("skipped", totals.get("skip", 0))
-    doc.db_set("transactions_created", result.get("transactions", 0))
-    doc.db_set("detected_apps", json.dumps(result.get("versions", {}), indent=1))
+            log_lines.append(f"[{res.status}] {suite['suite']} ({suite.get('app_version') or '-'})")
+            any_fail = any_fail or suite["status"] == "fail"
+            any_pass = any_pass or suite["status"] == "pass"
+            doc.db_set("total_steps", sum(totals.values()))
+            doc.db_set("passed", totals.get("pass", 0))
+            doc.db_set("failed", totals.get("fail", 0))
+            doc.db_set("skipped", totals.get("skip", 0))
+            doc.db_set("log", "\n".join(log_lines), commit=True)  # live commit
+    except Exception as exc:  # noqa: BLE001
+        doc.db_set("status", "Failed")
+        doc.db_set("log", ("\n".join(log_lines) + f"\nExecution error: {exc}").strip(), commit=True)
+        doc.db_set("finished_at", now_datetime())
+        frappe.db.commit()
+        return
+
     doc.db_set("status", "Failed" if any_fail and not any_pass else "Partial" if any_fail else "Passed")
     doc.db_set("finished_at", now_datetime())
     doc.db_set("log", "\n".join(log_lines) or "No applicable suites ran.")
