@@ -6,8 +6,10 @@ Frappe sites, keep a master catalog of test cases, run release tests (manually o
 on a schedule), and review results with corrective-action tracking — from the
 Frappe Desk or the Vue dashboard at **`/release`**.
 
-> The product is branded **Release Manager**; the Python package, doctypes
-> (`Release *`), and repo keep their original `release_manager` names.
+> The product is branded **Release Manager** (Python package, app, and repo all
+> named `release_manager`). A few Desk DocTypes still carry their earlier
+> `Smoke *` / `Testing *` labels — renaming those needs a data migration, so
+> they are left as-is; the names below match what you actually see in Desk.
 
 ## Running against Frappe Cloud (or any remote site)
 
@@ -16,7 +18,7 @@ To test a Frappe Cloud site:
 
 1. On that site, create an **API key + secret** for a user with the needed roles
    (User → API Access → Generate Keys).
-2. Add a **Release Site** with `base_url = https://<site>.frappe.cloud`,
+2. Add a **Testing Site** with `base_url = https://<site>.frappe.cloud`,
    `auth_type = token`, and those `api_key`/`api_secret`. Leave Host header blank
    (real DNS). Click **Test Connection**, then run.
 
@@ -29,24 +31,25 @@ tokens — no rework.
 
 ## Concepts (DocTypes)
 
-- **Release Site** — a target site: URL, Host header, and login or token auth.
+- **Testing Site** — a target site: URL, Host header, and login or token auth.
   "Test Connection" detects installed apps + versions.
-- **Release Test Case** — the test master, synced from the engine's suite catalog
+- **Smoke Test Case** — the test master, synced from the engine's suite catalog
   ("Sync Catalog"). Each maps to an engine suite (e.g. `erpnext`).
-- **Release Test Plan** — a saved selection of sites + test cases with a frequency
+- **Test Case Group** — bundles test cases so a whole area runs at once (see below).
+- **Smoke Test Plan** — a saved selection of sites + test cases with a frequency
   (Manual/Hourly/Daily/Weekly) for scheduled runs.
-- **Release Run** — one execution: pick a Site, pick Test Cases, "Run Now". Runs in
-  the background and records status + counts.
-- **Release Result** — per run/site/suite outcome with step-by-step detail, an
+- **Release Test** — one execution ("run"): pick a Site, pick Test Cases, "Run Now".
+  Runs in the background and records status + step/pass/fail counts.
+- **Test Result** — per run/site/suite outcome with step-by-step detail, an
   error log, and `corrective_action` + `action_status` fields to triage.
 
 ## Flow
 
-1. Add Release Sites and click **Test Connection**.
-2. **Sync Catalog** on Release Test Case to load available suites.
-3. Create a Release Run → choose a Site + Test Cases → **Run Now**.
-4. Watch status, then review Release Results; record corrective actions.
-5. (Optional) Save a Release Test Plan and set a frequency for scheduled runs.
+1. Add Testing Sites and click **Test Connection**.
+2. **Sync Catalog** on Smoke Test Case to load available suites.
+3. Create a Release Test → choose a Site + Test Cases → **Run Now**.
+4. Watch status, then review Test Results; record corrective actions.
+5. (Optional) Save a Smoke Test Plan and set a frequency for scheduled runs.
 
 The **Release Manager** Workspace gives shortcuts and pass/fail dashboard charts.
 
@@ -61,9 +64,9 @@ bench --site releasemanager.localhost install-app release_manager
 
 ## Test Groups
 
-A **Release Test Group** bundles test cases so you can run a whole area at once. Running a
+A **Test Case Group** bundles test cases so you can run a whole area at once. Running a
 group (Desk "Run Group" button, or `release_manager.api.run_group(site, group)`) creates one
-Release Run for every case in the group. `sync_catalog` auto-seeds per-app groups (e.g.
+Release Test for every case in the group. `sync_catalog` auto-seeds per-app groups (e.g.
 "ERPNext - Distribution" = all erpnext cases); you can also curate your own, mixing apps.
 
 ## Web UI (`/release`)
