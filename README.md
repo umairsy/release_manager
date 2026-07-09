@@ -1,4 +1,4 @@
-# Release Manager (app package: `smoke_console`)
+# Release Manager
 
 A Frappe app that is the **control plane / UI** for the
 [`frappe_smoke`](../frappe_smoke) execution engine. It lets you register target
@@ -42,26 +42,26 @@ tokens — no rework.
 
 ## Flow
 
-1. Add Smoke Sites and click **Test Connection**.
-2. **Sync Catalog** on Smoke Test Case to load available suites.
-3. Create a Smoke Run → choose a Site + Test Cases → **Run Now**.
-4. Watch status, then review Smoke Results; record corrective actions.
-5. (Optional) Save a Smoke Test Plan and set a frequency for scheduled runs.
+1. Add Test Release Sites and click **Test Connection**.
+2. **Sync Catalog** on Relase Test Case to load available suites.
+3. Create a Relaese Run → choose a Site + Test Cases → **Run Now**.
+4. Watch status, then review Release Results; record corrective actions.
+5. (Optional) Save a Releas Test Plan and set a frequency for scheduled runs.
 
-The **Smoke Console** Workspace gives shortcuts and pass/fail dashboard charts.
+The **Release Console** Workspace gives shortcuts and pass/fail dashboard charts.
 
 ## Dev install
 
 ```bash
 # engine into the bench env
-benches/frappe-bench/env/bin/python -m pip install -e ~/frappe_smoke
+benches/frappe-bench/env/bin/python -m pip install -e ~/frappe_release
 # app into the bench, then on the control site
-bench --site smoke.localhost install-app smoke_console
+bench --site releasemanager.localhost/.localhost install-app release_manager
 ```
 
 ## Test Groups
 
-A **Smoke Test Group** bundles test cases so you can run a whole area at once. Running a
+A **Release Test Group** bundles test cases so you can run a whole area at once. Running a
 group (Desk "Run Group" button, or `smoke_console.api.run_group(site, group)`) creates one
 Smoke Run for every case in the group. `sync_catalog` auto-seeds per-app groups (e.g.
 "ERPNext - Distribution" = all erpnext cases); you can also curate your own, mixing apps.
