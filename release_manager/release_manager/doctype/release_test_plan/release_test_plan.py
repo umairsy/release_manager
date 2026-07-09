@@ -4,5 +4,5 @@
 from frappe.model.document import Document
 
 
-class SmokePlanSite(Document):
+class ReleaseTestPlan(Document):
 	pass

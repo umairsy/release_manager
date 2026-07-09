@@ -44,7 +44,7 @@
    "fieldname": "test_cases",
    "fieldtype": "Table MultiSelect",
    "label": "Test Cases",
-   "options": "Smoke Plan Case",
+   "options": "Release Plan Case",
    "description": "Running the group runs every test case listed here."
   }
  ],

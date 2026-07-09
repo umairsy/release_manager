@@ -58,9 +58,9 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Smoke Test Plan",
+   "label": "Release Test Plan",
    "link_count": 0,
-   "link_to": "Smoke Test Plan",
+   "link_to": "Release Test Plan",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -86,9 +86,9 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Smoke Test Case",
+   "label": "Release Test Case",
    "link_count": 0,
-   "link_to": "Smoke Test Case",
+   "link_to": "Release Test Case",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -131,7 +131,7 @@
   {
    "color": "Grey",
    "label": "Test Cases",
-   "link_to": "Smoke Test Case",
+   "link_to": "Release Test Case",
    "type": "DocType"
   },
   {
@@ -149,7 +149,7 @@
   {
    "color": "Grey",
    "label": "Test Plans",
-   "link_to": "Smoke Test Plan",
+   "link_to": "Release Test Plan",
    "type": "DocType"
   }
  ],

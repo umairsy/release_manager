@@ -107,7 +107,7 @@
    "fieldname": "steps",
    "fieldtype": "Table",
    "label": "Steps",
-   "options": "Smoke Step Result"
+   "options": "Release Step Result"
   },
   {
    "fieldname": "section_error",

@@ -43,7 +43,7 @@ def _suites_for_run(run_doc) -> list[str] | None:
         return None
     suites = []
     for row in run_doc.test_cases:
-        suite = frappe.db.get_value("Smoke Test Case", row.test_case, "suite")
+        suite = frappe.db.get_value("Release Test Case", row.test_case, "suite")
         if suite:
             suites.append(suite)
     return suites or None
@@ -52,17 +52,17 @@ def _suites_for_run(run_doc) -> list[str] | None:
 # ------------------------------------------------------------- catalog + sites
 @frappe.whitelist()
 def sync_catalog() -> int:
-    """Upsert Smoke Test Case records from the engine's suite catalog."""
+    """Upsert Release Test Case records from the engine's suite catalog."""
     from release_tests import api as engine
 
     count = 0
     for entry in engine.catalog():
         preview = "\n".join(f"{i + 1}. {s}" for i, s in enumerate(entry["steps"]))
-        existing = frappe.db.get_value("Smoke Test Case", {"suite": entry["suite"]}, "name")
+        existing = frappe.db.get_value("Release Test Case", {"suite": entry["suite"]}, "name")
         doc = (
-            frappe.get_doc("Smoke Test Case", existing)
+            frappe.get_doc("Release Test Case", existing)
             if existing
-            else frappe.new_doc("Smoke Test Case")
+            else frappe.new_doc("Release Test Case")
         )
         if not existing:
             doc.test_case_name = entry["suite"]
@@ -94,7 +94,7 @@ def seed_example_groups() -> int:
     }
     by_app: dict[str, list[str]] = {}
     for case in frappe.get_all(
-        "Smoke Test Case", filters={"enabled": 1}, fields=["name", "required_app"]
+        "Release Test Case", filters={"enabled": 1}, fields=["name", "required_app"]
     ):
         by_app.setdefault(case.required_app or "other", []).append(case.name)
 
@@ -436,7 +436,7 @@ def run_progress(run: str) -> dict:
     }
     planned: list[str] = []
     for row in doc.test_cases:
-        suite = frappe.db.get_value("Smoke Test Case", row.test_case, "suite") or row.test_case
+        suite = frappe.db.get_value("Release Test Case", row.test_case, "suite") or row.test_case
         if suite not in planned:
             planned.append(suite)
 
@@ -470,7 +470,7 @@ def run_progress(run: str) -> dict:
 @frappe.whitelist()
 def run_plan(plan: str, trigger: str = "Manual") -> list[str]:
     """Create + queue one Release Test per site in a Test Plan."""
-    p = frappe.get_doc("Smoke Test Plan", plan)
+    p = frappe.get_doc("Release Test Plan", plan)
     case_links = [c.test_case for c in p.cases]
     runs = []
     for plan_site in p.sites:
@@ -572,7 +572,7 @@ def rerun(run: str) -> str:
 
 def _run_scheduled(frequency: str) -> None:
     plans = frappe.get_all(
-        "Smoke Test Plan", filters={"enabled": 1, "frequency": frequency}, pluck="name"
+        "Release Test Plan", filters={"enabled": 1, "frequency": frequency}, pluck="name"
     )
     for plan in plans:
         run_plan(plan, trigger="Scheduled")

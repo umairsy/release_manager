@@ -1,7 +1,7 @@
 // Copyright (c) 2026, Release Manager Contributors and contributors
 // For license information, please see license.txt
 
-frappe.listview_settings["Smoke Test Case"] = {
+frappe.listview_settings["Release Test Case"] = {
 	onload(listview) {
 		listview.page.add_inner_button(__("Sync Catalog"), () => {
 			frappe.call({ method: "release_manager.api.sync_catalog" }).then((r) => {

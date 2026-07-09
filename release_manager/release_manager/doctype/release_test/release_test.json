@@ -58,7 +58,7 @@
    "fieldname": "test_cases",
    "fieldtype": "Table MultiSelect",
    "label": "Test Cases",
-   "options": "Smoke Plan Case",
+   "options": "Release Plan Case",
    "description": "Leave empty to run all applicable test cases on the site."
   },
   {
@@ -70,7 +70,7 @@
    "fieldtype": "Link",
    "in_standard_filter": 1,
    "label": "From Plan",
-   "options": "Smoke Test Plan",
+   "options": "Release Test Plan",
    "read_only": 1
   },
   {

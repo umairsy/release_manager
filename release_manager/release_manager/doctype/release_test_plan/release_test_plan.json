@@ -60,7 +60,7 @@
    "fieldname": "sites",
    "fieldtype": "Table",
    "label": "Sites",
-   "options": "Smoke Plan Site"
+   "options": "Release Plan Site"
   },
   {
    "fieldname": "section_cases",
@@ -71,7 +71,7 @@
    "fieldname": "cases",
    "fieldtype": "Table",
    "label": "Test Cases",
-   "options": "Smoke Plan Case"
+   "options": "Release Plan Case"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -79,7 +79,7 @@
  "modified": "2026-06-29 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Release Manager",
- "name": "Smoke Test Plan",
+ "name": "Release Test Plan",
  "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [

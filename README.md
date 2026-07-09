@@ -6,10 +6,8 @@ Frappe sites, keep a master catalog of test cases, run release tests (manually o
 on a schedule), and review results with corrective-action tracking — from the
 Frappe Desk or the Vue dashboard at **`/release`**.
 
-> The product is branded **Release Manager** (Python package, app, and repo all
-> named `release_manager`). A few Desk DocTypes still carry their earlier
-> labels — renaming those needs a data migration, so
-> they are left as-is; the names below match what you actually see in Desk.
+> The product, app package, and repo are all named **`release_manager`**. The
+> DocType names below match what you see in the Frappe Desk.
 
 ## Running against Frappe Cloud (or any remote site)
 

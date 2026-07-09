@@ -1,7 +1,7 @@
 // Copyright (c) 2026, Release Manager Contributors and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on("Smoke Test Plan", {
+frappe.ui.form.on("Release Test Plan", {
 	refresh(frm) {
 		if (frm.is_new()) return;
 		frm.add_custom_button(__("Run Plan Now"), () => {

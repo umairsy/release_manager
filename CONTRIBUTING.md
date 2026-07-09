@@ -13,9 +13,8 @@ Keep that in mind for every change.
 ## Golden rules
 
 1. **Don't break existing data.** Do not rename or remove a DocType or field
-   without a migration patch in `patches.txt`. Some DocTypes still carry legacy
-   `Smoke *` / `Testing *` labels on purpose — renaming them needs a data
-   migration, so leave them unless you're doing that migration.
+   without a `frappe.rename_doc` migration patch in `patches.txt` (see
+   `release_manager/patches/rename_smoke_doctypes.py` for the pattern).
 2. **The engine is a dependency, not part of this app.** Behaviour that belongs
    to *how tests run* lives in `release_tests`; this app orchestrates, persists,
    and displays. Consider engine version compatibility when you touch `api.py`.
