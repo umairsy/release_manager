@@ -8,7 +8,7 @@ Frappe Desk or the Vue dashboard at **`/release`**.
 
 > The product is branded **Release Manager** (Python package, app, and repo all
 > named `release_manager`). A few Desk DocTypes still carry their earlier
-> `Smoke *` / `Testing *` labels — renaming those needs a data migration, so
+> labels — renaming those needs a data migration, so
 > they are left as-is; the names below match what you actually see in Desk.
 
 ## Running against Frappe Cloud (or any remote site)
@@ -33,10 +33,10 @@ tokens — no rework.
 
 - **Testing Site** — a target site: URL, Host header, and login or token auth.
   "Test Connection" detects installed apps + versions.
-- **Smoke Test Case** — the test master, synced from the engine's suite catalog
+- **Release Test Case** — the test master, synced from the engine's suite catalog
   ("Sync Catalog"). Each maps to an engine suite (e.g. `erpnext`).
 - **Test Case Group** — bundles test cases so a whole area runs at once (see below).
-- **Smoke Test Plan** — a saved selection of sites + test cases with a frequency
+- **Release Test Plan** — a saved selection of sites + test cases with a frequency
   (Manual/Hourly/Daily/Weekly) for scheduled runs.
 - **Release Test** — one execution ("run"): pick a Site, pick Test Cases, "Run Now".
   Runs in the background and records status + step/pass/fail counts.
@@ -46,10 +46,10 @@ tokens — no rework.
 ## Flow
 
 1. Add Testing Sites and click **Test Connection**.
-2. **Sync Catalog** on Smoke Test Case to load available suites.
+2. **Sync Catalog** on Release Test Case to load available suites.
 3. Create a Release Test → choose a Site + Test Cases → **Run Now**.
 4. Watch status, then review Test Results; record corrective actions.
-5. (Optional) Save a Smoke Test Plan and set a frequency for scheduled runs.
+5. (Optional) Save a Release Test Plan and set a frequency for scheduled runs.
 
 The **Release Manager** Workspace gives shortcuts and pass/fail dashboard charts.
 
