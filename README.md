@@ -1,4 +1,4 @@
-# Release Manager (app package: `release_manager`)
+# Release Manager
 
 A Frappe app that is the **control plane / UI** for the
 [`release_tests`](../release_tests) execution engine. It lets you register target
