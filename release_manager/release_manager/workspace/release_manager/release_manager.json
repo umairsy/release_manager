@@ -6,7 +6,7 @@
    "label": "Results by Status"
   }
  ],
- "content": "[{\"id\":\"hdr1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Release Manager</span>\",\"col\":12}},{\"id\":\"para1\",\"type\":\"paragraph\",\"data\":{\"text\":\"Run release tests against your Frappe sites and track results. Start a <b>Release Test</b>: pick a site, choose test cases, Run Now.\",\"col\":12}},{\"id\":\"nc1\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Release - Open Failures\",\"col\":4}},{\"id\":\"nc2\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Release - Results Logged\",\"col\":4}},{\"id\":\"ch1\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Release - Results by Status\",\"col\":12}},{\"id\":\"hdr2\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h5\\\">Quick Links</span>\",\"col\":12}},{\"id\":\"sc1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"New Release Test\",\"col\":3}},{\"id\":\"sc2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Testing Sites\",\"col\":3}},{\"id\":\"sc3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Test Cases\",\"col\":3}},{\"id\":\"sc4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Results\",\"col\":3}},{\"id\":\"sc5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Test Plans\",\"col\":3}},{\"id\":\"sc6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Test Groups\",\"col\":3}}]",
+ "content": "[{\"id\":\"hdr1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Release Manager</span>\",\"col\":12}},{\"id\":\"para1\",\"type\":\"paragraph\",\"data\":{\"text\":\"Run release tests against your Frappe sites and track results. Start a <b>Release Test</b>: pick a site, choose test cases, Run Now.\",\"col\":12}},{\"id\":\"scui\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Release Dashboard\",\"col\":4}},{\"id\":\"nc1\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Release - Open Failures\",\"col\":4}},{\"id\":\"nc2\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Release - Results Logged\",\"col\":4}},{\"id\":\"ch1\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Release - Results by Status\",\"col\":12}},{\"id\":\"hdr2\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h5\\\">Quick Links</span>\",\"col\":12}},{\"id\":\"sc1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"New Release Test\",\"col\":3}},{\"id\":\"sc2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Testing Sites\",\"col\":3}},{\"id\":\"sc3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Test Cases\",\"col\":3}},{\"id\":\"sc4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Results\",\"col\":3}},{\"id\":\"sc5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Test Plans\",\"col\":3}},{\"id\":\"sc6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Test Groups\",\"col\":3}}]",
  "creation": "2026-06-29 00:00:00.000000",
  "docstatus": 0,
  "doctype": "Workspace",
@@ -94,7 +94,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-06-29 00:00:00.000000",
+ "modified": "2026-07-09 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Release Manager",
  "name": "Release Manager",
@@ -115,6 +115,12 @@
  "roles": [],
  "sequence_id": 1.0,
  "shortcuts": [
+  {
+   "color": "Blue",
+   "label": "Release Dashboard",
+   "type": "URL",
+   "url": "/release"
+  },
   {
    "color": "Blue",
    "doc_view": "New",

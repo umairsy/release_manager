@@ -2,3 +2,4 @@
 release_manager.patches.rename_smoke_doctypes
 
 [post_model_sync]
+release_manager.patches.fix_widget_doctype_filters
